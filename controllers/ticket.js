@@ -9,7 +9,7 @@ export const getTickets = async (req, res) => {
       tickets = await Ticket.find({}).populate("assignedTo", ["email", "_id"]);
     } else {
       tickets = await Ticket.find({ createdBy: user._id }).select(
-        "title description"
+        "title description status createdAt"
       );
     }
     return res.status(200).json({ tickets });
@@ -32,7 +32,7 @@ export const getTicket = async (req, res) => {
       ticket = await Ticket.findOne({
         createdBy: user._id,
         _id: req.params.id,
-      }).select("title description");
+      }).select("title description status createdAt");
     }
     if (!ticket) {
       return res.status(404).json({ message: "Ticket not found" });
