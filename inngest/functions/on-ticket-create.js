@@ -21,6 +21,8 @@ export const onTicketCreated = inngest.createFunction(
         return ticketObject;
       });
 
+      // ! There is no need of transactions here, as we are only updating optional fields of the one document
+      // ! and failure of any step will simply won't update the document
       await step.run("update-ticket-status", async () => {
         await Ticket.findByIdAndUpdate(ticket._id, { status: "TODO" });
       });
@@ -58,20 +60,23 @@ export const onTicketCreated = inngest.createFunction(
             role: "admin",
           });
         }
-        if (user) {
-          await Ticket.findByIdAndUpdate(ticket._id, {
-            assignedTo: user._id,
-          });
-        }
+        await Ticket.findByIdAndUpdate(ticket._id, {
+          assignedTo: user?._id || null,
+        });
         return user;
       });
 
       await step.run("send-email-notification", async () => {
         if (moderator) {
+          const finalTicket = await Ticket.findById(ticket._id);
           await sendMail(
             moderator.email,
             "Ticket assigned",
-            `Ticket #${ticketId} assigned to you` // can include ticket url
+            `Ticket #${ticketId} assigned to you
+\nTitle: ${finalTicket.title}
+\nDescription: ${finalTicket.description}
+\nPriority: ${finalTicket.priority}
+\nURL: ${process.env.APP_URL}/tickets/${ticketId}` // APP_URL is set in .env.sample its the frontend url
           );
         }
       });

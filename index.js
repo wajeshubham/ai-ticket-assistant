@@ -5,7 +5,7 @@ import { serve } from "inngest/express";
 import mongoose from "mongoose";
 import { inngest } from "./inngest/client.js";
 import { onUserSignup } from "./inngest/functions/on-signup.js";
-import authRoutes from "./routes/auth.js";
+import userRoutes from "./routes/user.js";
 import ticketRoutes from "./routes/ticket.js";
 import { onTicketCreated } from "./inngest/functions/on-ticket-create.js";
 
@@ -16,7 +16,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/tickets", ticketRoutes);
-app.use("/api/auth", authRoutes);
+app.use("/api/auth", userRoutes);
 
 app.use(
   "/api/inngest",

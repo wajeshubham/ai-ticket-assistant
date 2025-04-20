@@ -1,14 +1,10 @@
-import express from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import User from "../models/user.js";
 import { inngest } from "../inngest/client.js";
-import { authenticate } from "../middleware/auth.js";
+import User from "../models/user.js";
 
-const router = express.Router();
-
-router.post("/update-user", authenticate, async (req, res) => {
-  const { skills = [], role } = req.body;
+export const updateUser = async (req, res) => {
+  const { skills = [], role, email } = req.body;
   try {
     if (req.user?.role !== "admin") {
       return res.status(403).json({ error: "Forbidden" });
@@ -27,9 +23,9 @@ router.post("/update-user", authenticate, async (req, res) => {
       .status(500)
       .json({ error: "Update failed", details: err.message });
   }
-});
+};
 
-router.post("/signup", async (req, res) => {
+export const signup = async (req, res) => {
   const { email, password, skills = [] } = req.body;
   try {
     const hashed = await bcrypt.hash(password, 10);
@@ -51,9 +47,9 @@ router.post("/signup", async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: "Signup failed", details: err.message });
   }
-});
+};
 
-router.post("/login", async (req, res) => {
+export const login = async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
@@ -70,9 +66,9 @@ router.post("/login", async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: "Login failed", details: err.message });
   }
-});
+};
 
-router.post("/logout", async (req, res) => {
+export const logout = async (req, res) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
     if (!token) return res.status(401).json({ error: "Unauthorized" });
@@ -83,6 +79,4 @@ router.post("/logout", async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: "Logout failed", details: err.message });
   }
-});
-
-export default router;
+};
