@@ -25,6 +25,20 @@ export const updateUser = async (req, res) => {
   }
 };
 
+export const getUsers = async (req, res) => {
+  try {
+    if (req.user.role !== "admin") {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+    const users = await User.find().select("-password");
+    return res.json(users);
+  } catch (err) {
+    return res
+      .status(500)
+      .json({ error: "Get users failed", details: err.message });
+  }
+};
+
 export const signup = async (req, res) => {
   const { email, password, skills = [] } = req.body;
   try {
